@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MyContacts.Server.Data;
 
 namespace MyContacts.Server.Controllers
 {
@@ -7,6 +9,13 @@ namespace MyContacts.Server.Controllers
     [ApiController]
     public class ContactController : ControllerBase
     {
+        //potrzebujemy ContactControllera żeby komunikować się z bazą danych
+        private readonly DataContext _context;
+        public ContactController(DataContext context)
+        {
+            _context = context;
+        }
+
         //tworzymy nowe obiekty naszych klas
         public static List<Category> categories = new List<Category>
         {
@@ -60,11 +69,13 @@ namespace MyContacts.Server.Controllers
 
             }
         };
-
+        
 
         [HttpGet]
         public async Task<ActionResult<List<Contact>>> GetContacts()
         {
+
+            var contacts = await _context.Contacts.ToListAsync();
             //zwracamy kontakty z kodem ok200
             return Ok(contacts);   
         }
@@ -72,19 +83,76 @@ namespace MyContacts.Server.Controllers
         [HttpGet("categories")]
         public async Task<ActionResult<List<Category>>> GetCategories()
         {
-            //zwracamy kontakty z kodem ok200
+            var contacts = await _context.Contacts.ToListAsync();
             return Ok(categories);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Contact>> GetSingleContact(int id)
         {
-            var contact = contacts.FirstOrDefault(c => c.Id == id);
+            var contact = await _context.Contacts
+                .Include(c => c.Category)
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (contact == null)
             {
                 return NotFound("Nie znaleziono kontaktu");
             }    
             return Ok(contact);
+        }
+
+        //dodawanie nowego kontaktu
+        [HttpPost]
+        public async Task<ActionResult<List<Contact>>> CreateContact(Contact contact)
+        {
+            contact.Category = null;
+            _context.Contacts.Add(contact);
+            await _context.SaveChangesAsync();
+            
+            return Ok(await GetDbContacts());
+        }
+        //wywołanie listy wszystkich kontaktów po zapisaniu
+        private async Task<List<Contact>> GetDbContacts()
+        {
+            return await _context.Contacts.Include(c => c.Category).ToListAsync();
+        }
+
+        //edycja kontaktu
+        [HttpPut("{id}")]
+        public async Task<ActionResult<List<Contact>>> UpdateContact(Contact contact, int id)
+        {
+            var dbContact = await _context.Contacts
+                    .Include(c => c.Category)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+            if (dbContact == null)
+                return NotFound("Nie znaleziono kontaktu");
+
+            dbContact.FistName = contact.FistName;
+            dbContact.LastName = contact.LastName;
+            dbContact.Email = contact.Email;
+            dbContact.CategoryId = contact.CategoryId;
+
+            await _context.SaveChangesAsync();
+
+
+            return Ok(await GetDbContacts());
+        }
+
+        //Usuwanie kontaktu
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<List<Contact>>> DeleteContact(int id)
+        {
+            var dbContact = await _context.Contacts
+                    .Include(c => c.Category)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+            if (dbContact == null)
+                return NotFound("Nie znaleziono kontaktu");
+
+            _context.Contacts.Remove(dbContact);
+
+            await _context.SaveChangesAsync();
+
+
+            return Ok(await GetDbContacts());
         }
     }
 }

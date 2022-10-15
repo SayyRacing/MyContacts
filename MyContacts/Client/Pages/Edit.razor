@@ -42,12 +42,18 @@ else
 </EditForm>
 
 @code {
+
+    //tutaj odbywa się edycja/dodawanie nowych kontaktów
+
     [Parameter]
     public int? Id { get; set; }
 
     string btnText = string.Empty;
 
     Contact contact = new Contact { Category = new Category() };
+
+    //w zależności czy przekazane zostało id przycisk wyświetla inne informacje 
+    // ponieważ jeśli nie ma id dodajemy nowy kontakt zamiast edytować
 
     protected override async Task OnInitializedAsync()
     {
