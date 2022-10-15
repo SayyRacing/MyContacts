@@ -1,0 +1,43 @@
+﻿@page "/contacts"
+@inject IContactService ContactService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Contacts</PageTitle>
+
+<h3>Contacts</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Identyfikator</th>
+            <th>Imię</th>
+            <th>Nazwisko</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var contact in ContactService.Contacts)
+        {
+            <tr>
+                <td>@contact.Id</td>
+                <td>@contact.FistName</td>
+                <td>@contact.LastName</td>
+                <td>
+                    <button class="btn btn-primary" @onclick="(() => ShowContact(contact.Id))"><i class="oi oi-pencil"></i></button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await ContactService.GetContacts();
+    }
+
+    void ShowContact(int id)
+    {
+        NavigationManager.NavigateTo($"edit/{id}");
+    }
+}
