@@ -10,6 +10,12 @@ namespace MyContacts.Client.Services.ContactService
 
         Task GetContacts();
         Task GetCategories();
+
+        //taski operacji CRUD
         Task<Contact> GetSingleContact(int id);
+        
+        Task CreateContact(Contact contact);
+        Task UpdateContact(Contact contact);
+        Task DeleteContact(int id);
     }
 }

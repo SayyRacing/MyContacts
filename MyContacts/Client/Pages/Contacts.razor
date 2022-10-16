@@ -30,6 +30,7 @@
         }
     </tbody>
 </table>
+<button class="btn btn-primary" @onclick="CreateNewContact">Dodaj Kontakt</button>
 
 @code {
     protected override async Task OnInitializedAsync()
@@ -40,5 +41,10 @@
     void ShowContact(int id)
     {
         NavigationManager.NavigateTo($"edit/{id}");
+    }
+
+    void CreateNewContact()
+    {
+        NavigationManager.NavigateTo("/edit");
     }
 }

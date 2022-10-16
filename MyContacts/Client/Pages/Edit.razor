@@ -39,6 +39,7 @@ else
     </div>
     <br />
     <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger" @onclick="DeleteContact">Delete Hero</button>
 </EditForm>
 
 @code {
@@ -65,7 +66,8 @@ else
     {
         if (Id == null)
         {
-
+            contact.Category = ContactService.Categories[0];
+            contact.CategoryId = contact.Category.Id;
         }
         else 
         {
@@ -75,6 +77,18 @@ else
 
     async Task HandleSubmit()
     {
+        if (Id == null)
+        {
+            await ContactService.CreateContact(contact);
+        }
+        else
+        {
+            await ContactService.UpdateContact(contact);
+        }
+    }
 
+    async Task DeleteContact()
+    {
+        await ContactService.DeleteContact(contact.Id);
     }
 }
