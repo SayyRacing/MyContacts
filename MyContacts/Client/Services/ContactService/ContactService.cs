@@ -9,7 +9,7 @@ namespace MyContacts.Client.Services.ContactService
         
         private readonly HttpClient _http;
         private readonly NavigationManager _navigationManager;
-
+        
         //konstruktor HTTP Client
         public ContactService(HttpClient http, NavigationManager navigationManager)
         {
